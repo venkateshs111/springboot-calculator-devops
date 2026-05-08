@@ -1,3 +1,4 @@
+```yaml id="v8r1oz"
 trigger:
   branches:
     include:
@@ -8,7 +9,7 @@ pool:
   name: Default
 
 variables:
-  imageRepository: 'springboot-calculator-devops'
+  imageRepository: 'venkateshs111/springboot-calculator-devops'
   tag: '$(Build.BuildId)'
 
 stages:
@@ -39,7 +40,7 @@ stages:
 
       inputs:
         containerRegistry: 'dockerhub-connection'
-        repository: 'venkateshs111/springboot-calculator-devops'
+        repository: '$(imageRepository)'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
         tags: |
@@ -70,7 +71,7 @@ stages:
 
           - script: |
 
-              docker pull springboot-calculator-devops:$(tag)
+              docker pull $(imageRepository):$(tag)
 
               docker stop calculator-dev || true
               docker rm calculator-dev || true
@@ -78,7 +79,7 @@ stages:
               docker run -d \
                 --name calculator-dev \
                 -p 8081:8080 \
-                springboot-calculator-devops:$(tag)
+                $(imageRepository):$(tag)
 
             displayName: Deploy Container To DEV2
 
@@ -107,7 +108,7 @@ stages:
 
           - script: |
 
-              docker pull springboot-calculator-devops:$(tag)
+              docker pull $(imageRepository):$(tag)
 
               docker stop calculator-prod || true
               docker rm calculator-prod || true
@@ -115,6 +116,7 @@ stages:
               docker run -d \
                 --name calculator-prod \
                 -p 8082:8080 \
-                springboot-calculator-devops:$(tag)
+                $(imageRepository):$(tag)
 
             displayName: Deploy Container To PROD2
+```
