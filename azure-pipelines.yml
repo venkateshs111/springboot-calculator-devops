@@ -39,7 +39,7 @@ stages:
 
       inputs:
         containerRegistry: 'dockerhub-connection'
-        repository: 'springboot-calculator-devops'
+        repository: 'venkateshs111/springboot-calculator-devops'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
         tags: |
