@@ -47,7 +47,6 @@ stages:
 
 # ==================================================
 # DEV2 DEPLOYMENT
-# Executes ONLY from DEV branch
 # ==================================================
 - stage: DEV2
   displayName: Deploy To DEV2
@@ -72,19 +71,17 @@ stages:
 
               docker pull $(imageRepository):$(tag)
 
-              docker stop calculator-dev || true
-              docker rm calculator-dev || true
+              docker stop calculator-dev
 
-              docker run -d \
-                --name calculator-dev \
-                -p 8081:8080 \
-                $(imageRepository):$(tag)
+              docker rm calculator-dev
 
+              docker run -d --name calculator-dev -p 8081:8080 $(imageRepository):$(tag)
+
+            continueOnError: true
             displayName: Deploy Container To DEV2
 
 # ==================================================
 # PROD2 DEPLOYMENT
-# Executes ONLY from MAIN branch
 # ==================================================
 - stage: PROD2
   displayName: Deploy To PROD2
@@ -109,13 +106,11 @@ stages:
 
               docker pull $(imageRepository):$(tag)
 
-              docker stop calculator-prod || true
-              docker rm calculator-prod || true
+              docker stop calculator-prod
 
-              docker run -d \
-                --name calculator-prod \
-                -p 8082:8080 \
-                $(imageRepository):$(tag)
+              docker rm calculator-prod
 
+              docker run -d --name calculator-prod -p 8082:8080 $(imageRepository):$(tag)
+
+            continueOnError: true
             displayName: Deploy Container To PROD2
-
