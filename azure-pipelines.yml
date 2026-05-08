@@ -9,15 +9,17 @@ pool:
 
 variables:
   imageRepository: 'venkateshs111/springboot-calculator-devops'
-  tag: '$(Build.BuildId)'
+  tag: 'latest'
 
 stages:
 
 # ==================================================
-# BUILD STAGE
+# BUILD + PUSH ONLY FOR DEV
 # ==================================================
-- stage: Build
+- stage: Build_DEV
   displayName: Build And Push Docker Image
+
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/dev')
 
   jobs:
 
@@ -51,7 +53,7 @@ stages:
 - stage: DEV2
   displayName: Deploy To DEV2
 
-  dependsOn: Build
+  dependsOn: Build_DEV
 
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/dev')
 
@@ -82,11 +84,11 @@ stages:
 
 # ==================================================
 # PROD2 DEPLOYMENT
+# PULL SAME IMAGE FROM DOCKER HUB
+# NO REBUILD
 # ==================================================
 - stage: PROD2
   displayName: Deploy To PROD2
-
-  dependsOn: Build
 
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
 
@@ -104,13 +106,13 @@ stages:
 
           - script: |
 
-              docker pull $(imageRepository):$(tag)
+              docker pull $(imageRepository):latest
 
               docker stop calculator-prod
 
               docker rm calculator-prod
 
-              docker run -d --name calculator-prod -p 8082:8080 $(imageRepository):$(tag)
+              docker run -d --name calculator-prod -p 8083:8080 $(imageRepository):latest
 
             continueOnError: true
-            displayName: Deploy Container To PROD2
+            displayName: Deploy Existing Image To PROD2
