@@ -1,0 +1,120 @@
+trigger:
+  branches:
+    include:
+      - dev
+      - main
+
+pool:
+  name: Default
+
+variables:
+  imageRepository: 'springboot-calculator-devops'
+  tag: '$(Build.BuildId)'
+
+stages:
+
+# ==================================================
+# BUILD STAGE
+# ==================================================
+- stage: Build
+  displayName: Build And Push Docker Image
+
+  jobs:
+
+  - job: BuildPushDocker
+
+    steps:
+
+    - task: Maven@4
+      displayName: Maven Build
+
+      inputs:
+        mavenPomFile: 'pom.xml'
+        goals: 'clean package'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.8'
+
+    - task: Docker@2
+      displayName: Build And Push Image
+
+      inputs:
+        containerRegistry: 'dockerhub-connection'
+        repository: 'springboot-calculator-devops'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: |
+          $(tag)
+
+# ==================================================
+# DEV2 DEPLOYMENT
+# Executes ONLY from DEV branch
+# ==================================================
+- stage: DEV2
+  displayName: Deploy To DEV2
+
+  dependsOn: Build
+
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/dev')
+
+  jobs:
+
+  - deployment: DeployDev2
+
+    environment: dev2
+
+    strategy:
+      runOnce:
+        deploy:
+
+          steps:
+
+          - script: |
+
+              docker pull springboot-calculator-devops:$(tag)
+
+              docker stop calculator-dev || true
+              docker rm calculator-dev || true
+
+              docker run -d \
+                --name calculator-dev \
+                -p 8081:8080 \
+                springboot-calculator-devops:$(tag)
+
+            displayName: Deploy Container To DEV2
+
+# ==================================================
+# PROD2 DEPLOYMENT
+# Executes ONLY from MAIN branch
+# ==================================================
+- stage: PROD2
+  displayName: Deploy To PROD2
+
+  dependsOn: Build
+
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+
+  jobs:
+
+  - deployment: DeployProd2
+
+    environment: prod2
+
+    strategy:
+      runOnce:
+        deploy:
+
+          steps:
+
+          - script: |
+
+              docker pull springboot-calculator-devops:$(tag)
+
+              docker stop calculator-prod || true
+              docker rm calculator-prod || true
+
+              docker run -d \
+                --name calculator-prod \
+                -p 8082:8080 \
+                springboot-calculator-devops:$(tag)
+
+            displayName: Deploy Container To PROD2
