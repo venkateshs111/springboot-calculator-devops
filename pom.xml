@@ -23,6 +23,32 @@
         </dependency>
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>test_artifact</id>
+            <url>https://pkgs.dev.azure.com/wy220506/wy220506/_packaging/test_artifact/maven/v1</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>test_artifact</id>
+            <name>Azure Artifacts Release Repository</name>
+            <url>https://pkgs.dev.azure.com/wy220506/wy220506/_packaging/test_artifact/maven/v1</url>
+        </repository>
+        <snapshotRepository>
+            <id>test_artifact</id>
+            <name>Azure Artifacts Snapshot Repository</name>
+            <url>https://pkgs.dev.azure.com/wy220506/wy220506/_packaging/test_artifact/maven/v1</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <build>
         <plugins>
 
